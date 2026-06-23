@@ -18,8 +18,8 @@ const COURSE = {
   },
 
   // XP necessário para subir de nível (índice = nível-1).
-  // Calibrado para que concluir 100% das aulas (~1780 XP) alcance o nível 10.
-  levelCurve: [0, 80, 180, 300, 450, 650, 900, 1200, 1500, 1780],
+  // Calibrado para que concluir 100% das aulas (~2470 XP) alcance o nível 12.
+  levelCurve: [0, 120, 280, 480, 720, 1000, 1320, 1680, 1900, 2120, 2320, 2470],
 
   tracks: [
     /* =====================================================
@@ -349,6 +349,127 @@ const COURSE = {
           ],
         },
         {
+          id: "b5",
+          title: "Modificadores: Mirror, Array, Boolean, Subdivision",
+          type: "Prática",
+          xp: 60,
+          duration: "45 min",
+          objectives: [
+            "Trabalhar de forma não-destrutiva com modifiers",
+            "Mirror para simetria e Array para repetição",
+            "Boolean para cortes mecânicos e Subdivision para suavizar",
+          ],
+          content:
+            "Modificadores aplicam efeitos sem destruir a malha original. **Mirror** modela metade e espelha (simetria perfeita), **Array** repete (corrimãos, grades), **Boolean** faz união/diferença para cortes e furos mecânicos, e **Subdivision Surface** suaviza. Dominar modifiers te faz modelar muito mais rápido e limpo — base para props e peças de veículos.",
+          docs: [
+            { label: "Modifiers (Blender Manual)", url: "https://docs.blender.org/manual/en/latest/modeling/modifiers/index.html" },
+          ],
+          videos: [
+            { label: "Modificadores do Blender (PT-BR)", query: "blender modificadores tutorial português iniciantes" },
+            { label: "Boolean para hard-surface", query: "blender boolean modifier hard surface tutorial" },
+            { label: "Referência: Mirror + Subdivision", query: "blender mirror subdivision surface workflow" },
+          ],
+          quiz: [
+            {
+              q: "Qual modificador é ideal para modelar só metade de um objeto simétrico?",
+              options: ["Array", "Mirror", "Boolean", "Bevel"],
+              answer: 1,
+              explain: "Mirror espelha a geometria — você modela um lado e o outro é gerado automaticamente.",
+            },
+          ],
+        },
+        {
+          id: "b6",
+          title: "Hard-surface: peças, máquinas e veículos",
+          type: "Prática",
+          xp: 70,
+          duration: "55 min",
+          objectives: [
+            "Entender hard-surface vs orgânico",
+            "Controlar bevels e support loops para shading limpo",
+            "Evitar pinching e topologia suja em superfícies rígidas",
+          ],
+          content:
+            "**Hard-surface** é a modelagem de objetos rígidos e mecânicos — armas, motores, peças de carro, máquinas. As técnicas-chave são **bevels** controlados, **support loops** (arestas de apoio que mantêm os cantos firmes ao suavizar) e shading limpo sem 'pinching' (deformações feias). É a base para criar peças de veículos e props mecânicos do FiveM.",
+          docs: [
+            { label: "Modeling meshes (Manual)", url: "https://docs.blender.org/manual/en/latest/modeling/meshes/index.html" },
+          ],
+          videos: [
+            { label: "Hard-surface do zero", query: "blender hard surface modeling tutorial iniciantes" },
+            { label: "Support loops e shading", query: "blender support loops bevel shading hard surface" },
+            { label: "Referência: peça de veículo", query: "blender hard surface car part modeling tutorial" },
+          ],
+          quiz: [
+            {
+              q: "Para que servem os 'support loops' em hard-surface?",
+              options: ["Aumentar o brilho", "Manter os cantos firmes ao suavizar", "Criar texturas", "Reduzir polígonos"],
+              answer: 1,
+              explain: "Support loops são arestas de apoio que seguram a forma dos cantos quando a malha é suavizada.",
+            },
+          ],
+        },
+        {
+          id: "b7",
+          title: "Escultura e normal maps (detalhe sem peso)",
+          type: "Prática",
+          xp: 70,
+          duration: "55 min",
+          objectives: [
+            "Esculpir detalhes em alta resolução (sculpt mode)",
+            "Fazer bake de high-poly para um normal map",
+            "Aplicar o detalhe num modelo low-poly game-ready",
+          ],
+          content:
+            "Você esculpe detalhes ricos (rebites, desgaste, panos) numa versão **high-poly** e depois 'assa' (**bake**) esse detalhe num **normal map** — uma textura que finge relevo. Assim o modelo **low-poly** do jogo parece detalhado sem custar polígonos. Essa é a técnica que separa assets game-ready bonitos dos amadores.",
+          docs: [
+            { label: "Sculpting (Manual)", url: "https://docs.blender.org/manual/en/latest/sculpt_paint/sculpting/index.html" },
+            { label: "Baking (Manual)", url: "https://docs.blender.org/manual/en/latest/render/cycles/baking.html" },
+          ],
+          videos: [
+            { label: "Escultura para iniciantes (PT-BR)", query: "blender sculpting iniciantes português tutorial" },
+            { label: "Bake de normal map high→low", query: "blender bake normal map high to low poly tutorial" },
+            { label: "Referência: detalhe game-ready", query: "blender game asset normal map workflow" },
+          ],
+          quiz: [
+            {
+              q: "O que um normal map permite fazer?",
+              options: ["Animar o modelo", "Simular relevo/detalhe sem adicionar polígonos", "Aumentar o FPS do PC", "Criar som"],
+              answer: 1,
+              explain: "Normal map é uma textura que finge relevo, dando aparência de detalhe a um modelo low-poly.",
+            },
+          ],
+        },
+        {
+          id: "b8",
+          title: "LODs, otimização e exportação limpa",
+          type: "Prática",
+          xp: 60,
+          duration: "45 min",
+          objectives: [
+            "Criar LODs (versões simplificadas para distância)",
+            "Aplicar escala/rotação (Ctrl+A) e checar normais",
+            "Exportar sem bugs de geometria ou sombra",
+          ],
+          content:
+            "**LOD** (Level of Detail) são versões mais simples do modelo usadas à distância — economizam FPS quando o objeto está longe. Antes de exportar: aplique escala e rotação (`Ctrl+A`), confira as **normais** (faces viradas pro lado certo) e remova geometria solta. Esses cuidados evitam os bugs visuais mais comuns no GTA V.",
+          docs: [
+            { label: "LOD models (GTA refs)", url: "https://docs.fivem.net/docs/game-references/" },
+          ],
+          videos: [
+            { label: "LODs no GTA V", query: "gta v lod models tutorial blender" },
+            { label: "Otimização de game asset", query: "blender otimização game asset performance tutorial" },
+            { label: "Referência: normais e escala", query: "blender apply scale recalculate normals export" },
+          ],
+          quiz: [
+            {
+              q: "Por que aplicar escala/rotação (Ctrl+A) antes de exportar?",
+              options: ["Deixa mais bonito", "Evita deformações e bugs no jogo", "Não faz diferença", "Aumenta polígonos"],
+              answer: 1,
+              explain: "Transformações não aplicadas causam escalas/rotações erradas e bugs ao importar no GTA V.",
+            },
+          ],
+        },
+        {
           id: "b4",
           title: "Exportar para GTA V (OpenIV / CodeWalker)",
           type: "Projeto",
@@ -375,6 +496,204 @@ const COURSE = {
               options: ["GIMS Evo", "Sollumz", "ZModeler", "Substance"],
               answer: 1,
               explain: "Sollumz é o addon gratuito de Blender mais usado para criar .ydr/.ytd/.ymap. ZModeler é pago e separado.",
+            },
+          ],
+        },
+      ],
+    },
+
+    /* =====================================================
+       TRILHA — ANIMAÇÃO E RIGGING (portas, objetos, anims)
+       ===================================================== */
+    {
+      id: "animacao",
+      title: "Animação e Rigging (portas e objetos)",
+      tag: "Avançado",
+      icon: "🎬",
+      color: "#2bd6c4",
+      summary:
+        "Dê vida aos seus assets: rigging no Blender, animação de portas e objetos articulados, e como levar animações customizadas para o GTA V e o FiveM.",
+      lessons: [
+        {
+          id: "an1",
+          title: "Princípios da animação",
+          type: "Teoria",
+          xp: 50,
+          duration: "35 min",
+          objectives: [
+            "Conhecer os princípios essenciais (timing, easing, antecipação)",
+            "Entender keyframes e curvas de interpolação",
+            "Aplicar timing mesmo numa animação simples (ex: porta)",
+          ],
+          content:
+            "Antes da parte técnica, entenda o que faz uma animação parecer **natural**. Os princípios clássicos — **timing** (ritmo), **easing** (aceleração/desaceleração), **antecipação** e **follow-through** — valem até para abrir uma porta. Uma porta que acelera no início e desacelera no fim parece real; uma com velocidade constante parece robótica. Keyframes marcam poses no tempo; as curvas (F-Curves) controlam como o movimento flui entre elas.",
+          docs: [
+            { label: "Animation (Blender Manual)", url: "https://docs.blender.org/manual/en/latest/animation/index.html" },
+          ],
+          videos: [
+            { label: "12 princípios da animação", query: "12 princípios da animação explicados português" },
+            { label: "Keyframes e easing no Blender", query: "blender keyframes easing f-curves iniciantes" },
+            { label: "Referência: timing e spacing", query: "animation timing spacing principles explained" },
+          ],
+          quiz: [
+            {
+              q: "Por que uma porta com 'easing' parece mais natural?",
+              options: ["Porque gira mais rápido", "Porque acelera e desacelera em vez de velocidade constante", "Porque usa mais polígonos", "Porque tem som"],
+              answer: 1,
+              explain: "Easing dá aceleração/desaceleração — movimento com velocidade constante parece robótico e artificial.",
+            },
+          ],
+        },
+        {
+          id: "an2",
+          title: "Rigging básico no Blender (armature e bones)",
+          type: "Prática",
+          xp: 70,
+          duration: "55 min",
+          objectives: [
+            "Criar uma armature (esqueleto) e bones",
+            "Parentear o mesh ao esqueleto",
+            "Fazer weight paint (peso de influência dos bones)",
+          ],
+          content:
+            "**Rig** é o esqueleto que controla o modelo. Você cria uma **armature** com **bones**, parenteia o mesh ao esqueleto e faz **weight paint** para definir quanto cada bone influencia cada parte da malha. Sem rig, nada que dobra ou gira pode ser animado de forma controlada — e é exatamente o que você precisa para portas com dobradiça, alavancas e personagens.",
+          docs: [
+            { label: "Rigging / Armatures (Manual)", url: "https://docs.blender.org/manual/en/latest/animation/armatures/index.html" },
+          ],
+          videos: [
+            { label: "Rigging básico (PT-BR)", query: "blender rigging básico português tutorial iniciantes" },
+            { label: "Weight paint explicado", query: "blender weight paint armature tutorial" },
+            { label: "Referência: rig de objeto simples", query: "blender simple object rig bones tutorial" },
+          ],
+          quiz: [
+            {
+              q: "O que o 'weight paint' define?",
+              options: ["A cor do objeto", "Quanto cada bone influencia cada parte da malha", "O peso físico real", "A textura"],
+              answer: 1,
+              explain: "Weight paint define a influência (0 a 1) de cada bone sobre os vértices — controla como a malha se deforma.",
+            },
+          ],
+        },
+        {
+          id: "an3",
+          title: "Animando portas e objetos articulados",
+          type: "Prática",
+          xp: 80,
+          duration: "60 min",
+          objectives: [
+            "Posicionar o pivô/origin no eixo da dobradiça",
+            "Animar rotação com keyframes (abrir/fechar)",
+            "Ajustar as curvas para um movimento crível",
+          ],
+          content:
+            "Portas, capôs, gavetas e alavancas giram em torno de um **eixo (dobradiça)**. O segredo é colocar o **origin/pivô** (ou o bone) exatamente no eixo da dobradiça — o erro mais comum é a porta girar no lugar errado porque o pivô está no centro do objeto. Com o pivô certo, você anima a **rotação** com keyframes (fechada → aberta) e ajusta as F-Curves para dar peso. Esse é o fundamento de qualquer porta animada no GTA V.",
+          docs: [
+            { label: "Transform pivot (Manual)", url: "https://docs.blender.org/manual/en/latest/editors/3dview/controls/pivot_point/index.html" },
+          ],
+          videos: [
+            { label: "Animar porta com keyframes", query: "blender animar porta keyframe rotação tutorial" },
+            { label: "Door hinge animation", query: "blender hinge door animation tutorial" },
+            { label: "Referência: pivô/origin correto", query: "blender set origin pivot point door animation" },
+          ],
+          quiz: [
+            {
+              q: "Qual é o erro mais comum ao animar uma porta?",
+              options: ["Usar poucos keyframes", "O pivô/origin não estar no eixo da dobradiça", "Animar rápido demais", "Não usar textura"],
+              answer: 1,
+              explain: "Se o origin/pivô não está na dobradiça, a porta gira em torno do ponto errado e fica visualmente quebrada.",
+            },
+          ],
+        },
+        {
+          id: "an4",
+          title: "Animações do GTA V: clip dictionaries (.ycd)",
+          type: "Teoria",
+          xp: 60,
+          duration: "45 min",
+          objectives: [
+            "Entender anim dicts e clips (.ycd)",
+            "Saber como animações são nomeadas e referenciadas",
+            "Localizar e testar animações existentes do jogo",
+          ],
+          content:
+            "O GTA V guarda animações em **clip dictionaries** (arquivos `.ycd`). Cada animação tem um **nome** e pertence a um **dict**. Nos scripts você sempre referencia o par **dict + anim** (ex: dict `amb@world_human_leaning@male@wall@back@foot_up@base`, anim `base`). Entender essa organização é a base para tocar animações no FiveM e, depois, criar as suas próprias.",
+          docs: [
+            { label: "RequestAnimDict (native)", url: "https://docs.fivem.net/natives/?_0xD3BD40951412FEF6" },
+            { label: "Animations (game refs)", url: "https://docs.fivem.net/docs/game-references/" },
+          ],
+          videos: [
+            { label: "Anim dictionaries explicado", query: "gta v animation dictionaries explained tutorial" },
+            { label: "Encontrar anims (.ycd)", query: "fivem anim dict ycd encontrar animação tutorial" },
+            { label: "Referência: lista de animações", query: "gta v animation list dict name reference" },
+          ],
+          quiz: [
+            {
+              q: "Para tocar uma animação no FiveM você precisa de:",
+              options: ["Apenas o nome da anim", "O par dict + nome da anim", "Um normal map", "Um veículo add-on"],
+              answer: 1,
+              explain: "Toda animação é referenciada pelo dicionário (.ycd) E pelo nome do clip dentro dele.",
+            },
+          ],
+        },
+        {
+          id: "an5",
+          title: "Exportar animações com Sollumz (.ycd)",
+          type: "Projeto",
+          xp: 90,
+          duration: "70 min",
+          objectives: [
+            "Criar um clip dictionary no Sollumz",
+            "Exportar a animação do Blender para .ycd",
+            "Fazer stream da animação num recurso FiveM",
+          ],
+          content:
+            "O addon **Sollumz** exporta animações do Blender direto para o `.ycd` do GTA V. Fluxo: rig + animação no Blender → criar o **clip dictionary** no Sollumz → exportar `.ycd` → colocar no recurso e fazer **stream**. Assim suas animações customizadas (portas, alavancas, emotes, props) rodam de verdade no FiveM. Este é o projeto que fecha o ciclo modelagem → animação → jogo.",
+          docs: [
+            { label: "Sollumz Wiki (GitHub)", url: "https://github.com/Sollumz/Sollumz/wiki" },
+            { label: "Sollumz (repositório)", url: "https://github.com/Sollumz/Sollumz" },
+          ],
+          videos: [
+            { label: "Sollumz export animation .ycd", query: "sollumz export animation ycd tutorial" },
+            { label: "Clip dictionary no Sollumz", query: "sollumz clip dictionary blender animation tutorial" },
+            { label: "Referência: stream de anim no FiveM", query: "fivem stream custom animation ycd resource tutorial" },
+          ],
+          quiz: [
+            {
+              q: "Qual ferramenta exporta animações do Blender para o formato do GTA V?",
+              options: ["OpenIV", "Sollumz", "CodeWalker", "Substance Painter"],
+              answer: 1,
+              explain: "Sollumz cria e exporta clip dictionaries (.ycd) a partir de rigs/animações feitos no Blender.",
+            },
+          ],
+        },
+        {
+          id: "an6",
+          title: "Door System e TaskPlayAnim no FiveM (script)",
+          type: "Prática",
+          xp: 80,
+          duration: "60 min",
+          objectives: [
+            "Tocar animações em peds com RequestAnimDict + TaskPlayAnim",
+            "Usar o Door System para portas sincronizadas",
+            "Combinar modelagem + animação + script numa porta funcional",
+          ],
+          content:
+            "No FiveM você toca animações por script: `RequestAnimDict(dict)` carrega o dicionário e `TaskPlayAnim(ped, dict, anim, ...)` reproduz no personagem. Para portas de MLO/props, o **Door System** (`AddDoorToSystem`, `DoorSystemSetDoorState`) controla estado, física e **sincronização entre jogadores** — todos veem a porta na mesma posição. Aqui você junta tudo: o modelo riggado, a animação exportada e o script que a dispara.",
+          docs: [
+            { label: "TaskPlayAnim (native)", url: "https://docs.fivem.net/natives/?_0xEA47FE3719165B94" },
+            { label: "AddDoorToSystem (native)", url: "https://docs.fivem.net/natives/?_0x6F8838D03D1DC226" },
+          ],
+          videos: [
+            { label: "TaskPlayAnim na prática", query: "fivem taskplayanim requestanimdict animation script tutorial" },
+            { label: "Door System (portas)", query: "fivem door system mlo porta script tutorial" },
+            { label: "Referência: portas sincronizadas", query: "fivem synced door script doorsystem tutorial" },
+          ],
+          quiz: [
+            {
+              q: "Por que usar o Door System em vez de só girar a entidade no cliente?",
+              options: ["É mais bonito", "Garante sincronização entre todos os jogadores", "Usa menos polígonos", "Não precisa de script"],
+              answer: 1,
+              explain: "O Door System sincroniza o estado da porta no servidor — todos os jogadores a veem na mesma posição.",
             },
           ],
         },
@@ -961,6 +1280,7 @@ const BADGES = [
   { id: "first_step", icon: "👣", name: "Primeiro Passo", desc: "Complete sua primeira aula." },
   { id: "lua_master", icon: "🌙", name: "Domínio Lua", desc: "Conclua toda a trilha de Lua." },
   { id: "artist", icon: "🎨", name: "Artista 3D", desc: "Conclua o pré-curso de Blender." },
+  { id: "animator", icon: "🎬", name: "Animador", desc: "Conclua a trilha de Animação e Rigging." },
   { id: "core_dev", icon: "⚙️", name: "Dev de Núcleo", desc: "Conclua a trilha FiveM Core." },
   { id: "ui_wizard", icon: "🖥️", name: "Mago da UI", desc: "Conclua a trilha de NUI." },
   { id: "quiz_ace", icon: "🧠", name: "Gênio dos Quizzes", desc: "Acerte 20 perguntas de quiz." },

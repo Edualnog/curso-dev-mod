@@ -3,85 +3,84 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FiveM Dev Academy — Curso de desenvolvimento de mods</title>
-  <meta name="description" content="Workspace de estudo para desenvolvimento de mods no FiveM: roadmap, Lua, Blender, NUI, frameworks, vídeos e quizzes. Marque cada aula e acompanhe seu progresso." />
+  <title>FiveM Dev Academy — Caminho do desenvolvedor de mods</title>
+  <meta name="description" content="Learning path gamificado para virar dev de mods no FiveM: Lua, Blender, animação, NUI, frameworks e servidor. Com vídeos de referência e quizzes." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
   <div class="app">
 
-    <!-- SIDEBAR (workspace) -->
-    <aside class="sidebar" id="sidebar">
-      <div class="ws">
-        <span class="ws-icon">🎮</span>
-        <span class="ws-name">FiveM Dev Academy<span>workspace de modding</span></span>
+    <!-- NAVBAR -->
+    <header class="nav">
+      <div class="brand">
+        <span class="glyph"></span>
+        <span>FiveM Dev Academy<small>learning path · modding</small></span>
       </div>
-
-      <div class="side-props">
-        <div class="sp-label">Progresso</div>
-        <div class="sp-row"><span>Nível</span><b class="mono" id="side-level">1</b></div>
-        <div class="sp-bar"><i id="side-xpfill"></i></div>
-        <div class="sp-meta" id="side-xplbl">0 / 80 XP</div>
-        <div class="sp-row"><span>XP total</span><b class="mono" id="side-xp">0</b></div>
-        <div class="sp-row"><span>Sequência</span><b class="mono" id="side-streak">0🔥</b></div>
+      <div class="nav-stats">
+        <div class="chip points"><span class="ci">⚡</span><b id="nav-points">0</b><span class="lbl">pts</span></div>
+        <div class="chip streak"><span class="ci">🔥</span><b id="nav-streak">0</b><span class="lbl">dias</span></div>
+        <div class="chip rank"><span class="ci">🏆</span><span class="lbl">Nível</span><b id="nav-rank">1</b></div>
+        <button class="chip chip-reset" id="reset-btn" title="Resetar progresso">⟳</button>
       </div>
+    </header>
 
-      <nav class="side-nav">
-        <div class="sp-label">Trilhas</div>
-        <div id="nav-tracks"></div>
-      </nav>
-
-      <div class="side-foot">
-        <button class="side-link" id="reset-btn">⟳ Resetar progresso</button>
-      </div>
-    </aside>
-
-    <!-- MAIN (document) -->
-    <main class="main">
-      <button class="menu-btn" id="menu-btn" aria-label="Abrir menu">☰</button>
-
-      <article class="doc">
-        <div class="cover" aria-hidden="true"></div>
-        <div class="page-icon">🎮</div>
-        <h1 class="page-title">FiveM Dev Academy</h1>
-        <p class="page-sub">Um roadmap para virar desenvolvedor de mods no FiveM — do primeiro script à criação de veículos, interiores, interfaces e servidores. Marque cada aula conforme avança.</p>
-
-        <div class="props" id="props"></div>
-
-        <div class="callout">
-          <span class="ce">📌</span>
-          <div id="callout-text">
-            Este workspace reúne <b id="stat-lessons">0</b> aulas, <b id="stat-videos">0</b> vídeos selecionados e
-            <b id="stat-quiz">0</b> perguntas. Você concluiu <b id="stat-done">0</b> até agora —
-            cada aula marcada rende XP e desbloqueia conquistas.
+    <!-- HERO -->
+    <section class="wrap">
+      <div class="hero">
+        <div class="hero-text">
+          <span class="eyebrow">Learning Path</span>
+          <h1>Caminho do <span class="hl">Dev de Mods</span> no FiveM</h1>
+          <p class="lede">Uma trilha guiada do zero ao avançado: programação, modelagem 3D, animação de portas e objetos, interfaces, frameworks e servidor. Conclua salas, ganhe XP e suba de nível.</p>
+          <div class="hero-actions">
+            <button class="btn" id="continue-btn">▶ Continuar de onde parei</button>
+            <a class="btn ghost" href="https://docs.fivem.net/docs/" target="_blank" rel="noopener">Docs do FiveM ↗</a>
           </div>
         </div>
 
-        <div class="sec-head">
-          <span class="eyebrow">Roadmap</span>
-          <h2>Trilhas de aprendizado</h2>
+        <div class="hero-card">
+          <div class="ring" id="hero-ring">
+            <div class="hole">
+              <div>
+                <div class="pct" id="hero-pct">0%</div>
+                <div class="pl">concluído</div>
+              </div>
+            </div>
+          </div>
+          <div class="frac" id="hero-frac">0 / 0 salas</div>
+          <div class="mini">
+            <span><b id="stat-videos">0</b> vídeos</span>
+            <span><b id="stat-quiz">0</b> quizzes</span>
+            <span><b id="stat-tracks">0</b> trilhas</span>
+          </div>
         </div>
-        <div id="roadmap"></div>
+      </div>
 
-        <div class="sec-head">
-          <span class="eyebrow">Gamificação</span>
-          <h2>Conquistas</h2>
-        </div>
-        <div class="badges" id="badges-grid"></div>
+      <!-- PATH -->
+      <div class="section-head">
+        <h2>Sua trilha</h2>
+        <p>Avance pelas salas em ordem. O anel de cada checkpoint mostra seu progresso na trilha.</p>
+      </div>
+      <div class="path" id="path"></div>
 
-        <footer class="doc-foot">
-          Conteúdo baseado nas <a href="https://docs.fivem.net/docs/" target="_blank" rel="noopener">documentações oficiais do FiveM</a> e em tutoriais da comunidade no YouTube. Seu progresso fica salvo localmente neste navegador.
-        </footer>
-      </article>
-    </main>
+      <!-- ACHIEVEMENTS -->
+      <div class="section-head">
+        <h2>Conquistas</h2>
+        <p>Marcos desbloqueados ao longo do caminho.</p>
+      </div>
+      <div class="badges" id="badges-grid"></div>
+
+      <footer class="foot">
+        Conteúdo baseado nas <a href="https://docs.fivem.net/docs/" target="_blank" rel="noopener">docs oficiais do FiveM</a> e em tutoriais da comunidade no YouTube. Progresso salvo localmente neste navegador.
+      </footer>
+    </section>
   </div>
 
-  <!-- PEEK (lesson) -->
+  <!-- MODAL -->
   <div class="overlay" id="overlay">
-    <div class="peek" id="modal" role="dialog" aria-modal="true"></div>
+    <div class="modal" id="modal" role="dialog" aria-modal="true"></div>
   </div>
 
   <!-- TOASTS -->
