@@ -1,29 +1,27 @@
 /* ============================================================
-   FiveM Dev Academy — Lógica do app (gamificação + render)
+   FiveM Dev Academy — app logic (gamification + Notion render)
    ============================================================ */
 
 const STORE_KEY = "fivem_academy_progress_v1";
 
 const defaultState = {
-  completed: {},      // { lessonId: true }
+  completed: {},   // { lessonId: true }
   xp: 0,
   quizCorrect: 0,
-  badges: {},         // { badgeId: true }
-  lastDay: null,      // 'YYYY-MM-DD'
+  badges: {},      // { badgeId: true }
+  lastDay: null,   // 'YYYY-MM-DD'
   streak: 0,
 };
 
 let state = loadState();
 
-/* ---------- Persistência ---------- */
+/* ---------- Persistence ---------- */
 function loadState() {
   try {
     const raw = localStorage.getItem(STORE_KEY);
     if (!raw) return structuredClone(defaultState);
     return Object.assign(structuredClone(defaultState), JSON.parse(raw));
-  } catch {
-    return structuredClone(defaultState);
-  }
+  } catch { return structuredClone(defaultState); }
 }
 function saveState() { localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
 
@@ -63,12 +61,11 @@ function earnBadge(id) {
   if (state.badges[id]) return;
   state.badges[id] = true;
   const b = BADGES.find(x => x.id === id);
-  if (b) toast(b.icon, "Conquista desbloqueada!", b.name);
+  if (b) toast(b.icon, "Conquista desbloqueada", b.name);
 }
 function checkBadges() {
   if (completedCount() >= 1) earnBadge("first_step");
   if (state.quizCorrect >= 20) earnBadge("quiz_ace");
-
   const trackDone = (tid) => {
     const t = COURSE.tracks.find(x => x.id === tid);
     return t && t.lessons.every(l => state.completed[l.id]);
@@ -77,7 +74,6 @@ function checkBadges() {
   if (trackDone("blender")) earnBadge("artist");
   if (trackDone("core")) earnBadge("core_dev");
   if (trackDone("nui")) earnBadge("ui_wizard");
-
   const pct = completedCount() / totalLessons();
   if (pct >= 0.5) earnBadge("halfway");
   if (pct >= 1) earnBadge("graduate");
@@ -88,112 +84,125 @@ function toast(icon, title, sub) {
   const wrap = $("#toasts");
   const el = document.createElement("div");
   el.className = "toast";
-  el.innerHTML = `<div class="ic">${icon}</div><div><div class="tt">${title}</div><div class="ts">${sub}</div></div>`;
+  el.innerHTML = `<span class="ti">${icon}</span><div><div class="tt">${title}</div><div class="ts">${sub}</div></div>`;
   wrap.appendChild(el);
-  setTimeout(() => { el.classList.add("out"); setTimeout(() => el.remove(), 350); }, 3200);
+  setTimeout(() => { el.classList.add("out"); setTimeout(() => el.remove(), 320); }, 3200);
 }
 
 /* ============================================================
    RENDER
    ============================================================ */
-function renderTopbar() {
-  const { lvl, pct, hi, lo } = levelBounds(state.xp);
-  $("#stat-level").textContent = lvl;
-  $("#stat-xp").textContent = state.xp;
-  $("#stat-streak").textContent = state.streak;
+function trackProgress(t) {
+  const done = t.lessons.filter(l => state.completed[l.id]).length;
+  return { done, total: t.lessons.length, pct: Math.round((done / t.lessons.length) * 100) };
+}
+
+function renderProgress() {
+  const { lvl } = levelBounds(state.xp);
   const isMax = lvl >= COURSE.levelCurve.length;
-  $("#xp-fill").style.width = (isMax ? 100 : pct) + "%";
-  $("#xp-lbl").textContent = isMax
-    ? "🏅 Nível máximo atingido!"
-    : `${state.xp - lo} / ${hi - lo} XP p/ nível ${lvl + 1}`;
+  const { lo, hi, pct } = levelBounds(state.xp);
+
+  $("#side-level").textContent = lvl;
+  $("#side-xp").textContent = state.xp;
+  $("#side-streak").textContent = state.streak + "🔥";
+  $("#side-xpfill").style.width = (isMax ? 100 : pct) + "%";
+  $("#side-xplbl").textContent = isMax ? "nível máximo" : `${state.xp - lo} / ${hi - lo} XP p/ nível ${lvl + 1}`;
+
+  $("#props").innerHTML =
+    `<span>⚡ Nível <b>${lvl}</b></span>` +
+    `<span><b>${state.xp}</b> XP</span>` +
+    `<span>🔥 <b>${state.streak}</b> dias</span>` +
+    `<span>✅ <b>${completedCount()}</b>/${totalLessons()} aulas</span>`;
 }
 
-function renderHeroPills() {
-  $("#pill-lessons").textContent = totalLessons();
-  $("#pill-done").textContent = completedCount();
-  const allVids = COURSE.tracks.reduce((n, t) => n + t.lessons.reduce((m, l) => m + l.videos.length, 0), 0);
-  const allQuiz = COURSE.tracks.reduce((n, t) => n + t.lessons.reduce((m, l) => m + l.quiz.length, 0), 0);
-  $("#pill-videos").textContent = allVids;
-  $("#pill-quiz").textContent = allQuiz;
+function renderStats() {
+  const lessons = allLessons();
+  $("#stat-lessons").textContent = totalLessons();
+  $("#stat-videos").textContent = lessons.reduce((n, l) => n + l.videos.length, 0);
+  $("#stat-quiz").textContent = lessons.reduce((n, l) => n + l.quiz.length, 0);
+  $("#stat-done").textContent = completedCount();
 }
 
-function trackProgress(track) {
-  const done = track.lessons.filter(l => state.completed[l.id]).length;
-  return { done, total: track.lessons.length, pct: Math.round((done / track.lessons.length) * 100) };
+function renderNav() {
+  const nav = $("#nav-tracks");
+  nav.innerHTML = COURSE.tracks.map(t => {
+    const p = trackProgress(t);
+    const complete = p.done === p.total;
+    return `<button class="nav-item ${complete ? "complete" : ""}" data-jump="track-${t.id}">
+      <span class="ni-emoji">${t.icon}</span>
+      <span class="ni-name">${t.title}</span>
+      <span class="ni-count">${complete ? "✓" : p.done + "/" + p.total}</span>
+    </button>`;
+  }).join("");
+
+  nav.querySelectorAll("[data-jump]").forEach(btn => btn.addEventListener("click", () => {
+    document.getElementById(btn.dataset.jump)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    $("#sidebar").classList.remove("open");
+  }));
 }
 
 function renderRoadmap() {
   const root = $("#roadmap");
-  root.innerHTML = "";
-  let prevDone = true; // first track always active/unlocked
-
-  COURSE.tracks.forEach((track) => {
-    const p = trackProgress(track);
-    const isDone = p.done === p.total;
-    const isActive = !isDone && prevDone;
-
-    const el = document.createElement("section");
-    el.className = "track" + (isDone ? " done" : isActive ? " active" : "");
-    el.style.setProperty("--clr", track.color);
-
-    const lessonsHtml = track.lessons.map(l => {
+  root.innerHTML = COURSE.tracks.map(t => {
+    const p = trackProgress(t);
+    const lessons = t.lessons.map(l => {
       const done = !!state.completed[l.id];
-      return `
-        <button class="lesson-chip ${done ? "done" : ""}" data-lesson="${l.id}">
-          <span class="check">✓</span>
-          <span class="ltype ${l.type}">${l.type}</span>
-          <h4>${l.title}</h4>
-          <div class="meta"><span>⏱ ${l.duration}</span><span>⚡ ${l.xp} XP</span></div>
-        </button>`;
+      return `<li class="todo-item ${done ? "done" : ""}" data-lesson="${l.id}">
+        <button class="cb" data-check="${l.id}" aria-label="Marcar ${l.title}">✓</button>
+        <span class="ti-type mono">${l.type}</span>
+        <span class="ti-title">${l.title}</span>
+        <span class="ti-meta mono">${l.duration} · ${l.xp} XP</span>
+      </li>`;
     }).join("");
 
-    el.innerHTML = `
-      <div class="node" style="border-color:${isDone ? "var(--accent)" : isActive ? track.color : ""}">${track.icon}</div>
-      <div class="track-card">
-        <div class="track-head">
-          <div>
-            <span class="track-tag">${track.tag}</span>
-            <h3 style="margin-top:8px">${track.title}</h3>
-          </div>
-          <div class="track-progress">
-            <span>${p.done}/${p.total} aulas</span>
-            <div class="bar"><i style="width:${p.pct}%; background:${track.color}"></i></div>
-          </div>
-        </div>
-        <p class="track-summary">${track.summary}</p>
-        <div class="lessons">${lessonsHtml}</div>
-      </div>`;
-    root.appendChild(el);
-    prevDone = isDone;
-  });
+    return `<section class="track" id="track-${t.id}">
+      <div class="track-top">
+        <span class="t-emoji">${t.icon}</span>
+        <h3 class="t-title">${t.title}</h3>
+        <span class="t-tag mono">${t.tag}</span>
+        <span class="t-count mono">${p.done}/${p.total}</span>
+        <div class="t-bar"><i style="width:${p.pct}%"></i></div>
+      </div>
+      <p class="t-sum">${t.summary}</p>
+      <ul class="todo">${lessons}</ul>
+    </section>`;
+  }).join("");
 
-  root.querySelectorAll("[data-lesson]").forEach(btn =>
-    btn.addEventListener("click", () => openLesson(btn.dataset.lesson)));
+  root.querySelectorAll(".todo-item").forEach(item => {
+    item.addEventListener("click", () => openLesson(item.dataset.lesson));
+  });
+  root.querySelectorAll(".cb").forEach(cb => {
+    cb.addEventListener("click", (e) => {
+      e.stopPropagation();
+      completeLesson(cb.dataset.check);
+    });
+  });
 }
 
 function renderBadges() {
-  const grid = $("#badges-grid");
-  grid.innerHTML = BADGES.map(b => `
-    <div class="badge ${state.badges[b.id] ? "earned" : ""}">
+  $("#badges-grid").innerHTML = BADGES.map(b => {
+    const earned = !!state.badges[b.id];
+    return `<div class="badge ${earned ? "earned" : "locked"}">
       <div class="bi">${b.icon}</div>
-      <div class="bn">${b.name}</div>
+      <div class="bn">${b.name}${earned ? "" : '<span class="lock">🔒</span>'}</div>
       <div class="bd">${b.desc}</div>
-    </div>`).join("");
+    </div>`;
+  }).join("");
 }
 
 function renderAll() {
-  renderTopbar();
-  renderHeroPills();
+  renderProgress();
+  renderStats();
+  renderNav();
   renderRoadmap();
   renderBadges();
+  initScrollSpy();
 }
 
 /* ============================================================
-   LESSON MODAL
+   LESSON PEEK
    ============================================================ */
-function ytSearch(query) {
-  return "https://www.youtube.com/results?search_query=" + encodeURIComponent(query);
-}
+function ytSearch(q) { return "https://www.youtube.com/results?search_query=" + encodeURIComponent(q); }
 
 function openLesson(id) {
   const l = lessonById(id);
@@ -201,17 +210,16 @@ function openLesson(id) {
   const done = !!state.completed[id];
 
   const objs = l.objectives.map(o => `<li>${o}</li>`).join("");
-  const docs = l.docs.map(d => `
-    <a class="link-row" href="${d.url}" target="_blank" rel="noopener">
-      <span class="ic">📄</span><span class="tx">${d.label}</span><span class="go">Abrir ↗</span>
+  const vids = l.videos.map(v =>
+    `<a class="link" href="${ytSearch(v.query)}" target="_blank" rel="noopener">
+      <span class="li">▶</span><span class="lt">${v.label}</span><span class="lg">YouTube ↗</span>
     </a>`).join("");
-  const vids = l.videos.map(v => `
-    <a class="link-row video" href="${ytSearch(v.query)}" target="_blank" rel="noopener">
-      <span class="ic">▶</span><span class="tx">${v.label}</span><span class="go">YouTube ↗</span>
+  const docs = l.docs.map(d =>
+    `<a class="link" href="${d.url}" target="_blank" rel="noopener">
+      <span class="li">↳</span><span class="lt">${d.label}</span><span class="lg">docs ↗</span>
     </a>`).join("");
-
-  const quizHtml = l.quiz.map((q, qi) => `
-    <div class="quiz-q" data-qi="${qi}">
+  const quiz = l.quiz.map((q, qi) =>
+    `<div class="quiz-q" data-qi="${qi}">
       <div class="qt">${qi + 1}. ${q.q}</div>
       <div class="quiz-opts">
         ${q.options.map((o, oi) => `<button class="quiz-opt" data-oi="${oi}">${o}</button>`).join("")}
@@ -219,69 +227,63 @@ function openLesson(id) {
       <div class="quiz-explain"></div>
     </div>`).join("");
 
-  const modal = $("#modal");
-  modal.innerHTML = `
-    <div class="modal-head">
+  $("#modal").innerHTML = `
+    <div class="peek-head">
       <div>
-        <span class="ltype ${l.type}">${l.type}</span>
+        <div class="ph-eyebrow">${l.type} · ${l.duration} · ${l.xp} XP</div>
         <h2>${l.title}</h2>
       </div>
-      <button class="x" id="modal-x">✕</button>
+      <button class="x" id="peek-x" aria-label="Fechar">✕</button>
     </div>
-    <div class="modal-body">
-      <h5>🎯 Objetivos da aula</h5>
+    <div class="peek-body">
+      <div class="block-label">Objetivos</div>
       <ul class="obj-list">${objs}</ul>
 
-      <h5>📘 Conteúdo</h5>
+      <div class="block-label">Sobre esta aula</div>
       <p class="lesson-text">${l.content}</p>
 
-      <h5>▶ Vídeos recomendados (YouTube)</h5>
-      <div class="link-grid">${vids}</div>
+      <div class="block-label">Vídeos no YouTube</div>
+      <div class="links">${vids}</div>
 
-      <h5>📄 Documentação oficial</h5>
-      <div class="link-grid">${docs}</div>
+      <div class="block-label">Documentação oficial</div>
+      <div class="links">${docs}</div>
 
-      <h5>🧠 Quiz — teste seu conhecimento</h5>
-      <div class="quiz">${quizHtml}</div>
+      <div class="block-label">Quiz</div>
+      <div class="quiz">${quiz}</div>
     </div>
-    <div class="modal-foot">
-      <span class="foot-note">Complete a aula para ganhar <b>${l.xp} XP</b>.</span>
+    <div class="peek-foot">
+      <span class="foot-note">Marque como concluída para ganhar ${l.xp} XP.</span>
       <button class="complete-btn ${done ? "done" : ""}" id="complete-btn">
         ${done ? "✓ Concluída" : "Marcar como concluída"}
       </button>
     </div>`;
 
-  // Quiz interactions
-  modal.querySelectorAll(".quiz-q").forEach((qEl, qi) => {
+  $("#modal").querySelectorAll(".quiz-q").forEach((qEl, qi) => {
     const q = l.quiz[qi];
     const opts = qEl.querySelectorAll(".quiz-opt");
     const explain = qEl.querySelector(".quiz-explain");
-    opts.forEach(opt => {
-      opt.addEventListener("click", () => {
-        if (qEl.dataset.answered) return;
-        qEl.dataset.answered = "1";
-        const chosen = +opt.dataset.oi;
-        opts.forEach(o => o.disabled = true);
-        opts[q.answer].classList.add("correct");
-        if (chosen === q.answer) {
-          state.quizCorrect++;
-          saveState();
-          checkBadges();
-          renderBadges();
-        } else {
-          opt.classList.add("wrong");
-        }
-        explain.textContent = (chosen === q.answer ? "✅ Correto! " : "❌ ") + q.explain;
-        explain.classList.add("show");
-      });
-    });
+    opts.forEach(opt => opt.addEventListener("click", () => {
+      if (qEl.dataset.answered) return;
+      qEl.dataset.answered = "1";
+      const chosen = +opt.dataset.oi;
+      opts.forEach(o => o.disabled = true);
+      opts[q.answer].classList.add("correct");
+      if (chosen === q.answer) {
+        state.quizCorrect++; saveState(); checkBadges(); renderBadges();
+      } else {
+        opt.classList.add("wrong");
+      }
+      explain.textContent = (chosen === q.answer ? "Correto. " : "Resposta certa destacada acima. ") + q.explain;
+      explain.classList.add("show");
+    }));
   });
 
-  $("#modal-x").addEventListener("click", closeModal);
-  $("#complete-btn").addEventListener("click", () => completeLesson(id));
+  $("#peek-x").addEventListener("click", closeModal);
+  $("#complete-btn").addEventListener("click", () => completeLesson(id, true));
 
   $("#overlay").classList.add("open");
   document.body.style.overflow = "hidden";
+  $("#modal").scrollTop = 0;
 }
 
 function closeModal() {
@@ -289,30 +291,47 @@ function closeModal() {
   document.body.style.overflow = "";
 }
 
-function completeLesson(id) {
-  if (state.completed[id]) return;
+function completeLesson(id, fromPeek = false) {
+  if (state.completed[id]) { if (fromPeek) closeModal(); return; }
   const l = lessonById(id);
+  const before = levelFromXp(state.xp);
   state.completed[id] = true;
   state.xp += l.xp;
-  const before = levelFromXp(state.xp - l.xp);
   const after = levelFromXp(state.xp);
   touchStreak();
   saveState();
   checkBadges();
 
   toast("⚡", `+${l.xp} XP`, l.title);
-  if (after > before) setTimeout(() => toast("🎉", "Subiu de nível!", `Você alcançou o nível ${after}`), 600);
+  if (after > before) setTimeout(() => toast("🎉", `Nível ${after}`, "Você subiu de nível"), 650);
 
   renderAll();
-  closeModal();
+  if (fromPeek) closeModal();
 }
 
 /* ---------- Reset ---------- */
 function resetProgress() {
-  if (!confirm("Tem certeza? Isso apaga todo o seu progresso, XP e conquistas.")) return;
+  if (!confirm("Apagar todo o progresso, XP e conquistas deste navegador?")) return;
   state = structuredClone(defaultState);
   saveState();
   renderAll();
+}
+
+/* ---------- Scrollspy (sidebar active) ---------- */
+let spyObs = null;
+function initScrollSpy() {
+  if (spyObs) spyObs.disconnect();
+  const items = new Map();
+  document.querySelectorAll(".nav-item").forEach(n => items.set(n.dataset.jump, n));
+  spyObs = new IntersectionObserver((entries) => {
+    entries.forEach(en => {
+      if (en.isIntersecting) {
+        document.querySelectorAll(".nav-item.active").forEach(n => n.classList.remove("active"));
+        items.get(en.target.id)?.classList.add("active");
+      }
+    });
+  }, { rootMargin: "-15% 0px -75% 0px" });
+  document.querySelectorAll(".track").forEach(t => spyObs.observe(t));
 }
 
 /* ---------- Init ---------- */
@@ -320,8 +339,6 @@ document.addEventListener("DOMContentLoaded", () => {
   renderAll();
   $("#overlay").addEventListener("click", (e) => { if (e.target.id === "overlay") closeModal(); });
   $("#reset-btn").addEventListener("click", resetProgress);
-  $("#start-btn").addEventListener("click", () => {
-    document.querySelector(".roadmap-title").scrollIntoView({ behavior: "smooth" });
-  });
+  $("#menu-btn").addEventListener("click", () => $("#sidebar").classList.toggle("open"));
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModal(); });
 });
